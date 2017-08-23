@@ -7,24 +7,36 @@
 .section .data
 
 data_items:  # table of integers being examined
-  .long 253,67,34,222,45,75,54,34,44,251, 33,22,11,66,95,0
+  .long 253,67,34,222,45,75,54,34,44,251, 33,22,11,66,95,9,0
+data_end:
+
+hex_data:
+  .short 0xdeade, 0xbeef, 0xfeda, 0xb1da, 0x9999
+
+hello_text:
+  .ascii "Hello\tWorld!\n\0"
+label1:
 
 .section .text
 
 .globl _start
 _start:
-  movl data_items(,0,4), %ebx	# assume we have greates values
-  cmpl $0, %ebx	  # check exit condition
-  je proc_exit
+
+  movl $0x80000000, %ebx # the smallest 32-bit number
+#  movl data_items(,%edi,4), %ebx # assume we have greates values
+#  cmpl $0, %ebx	  # check exit condition
+#  je proc_exit
 #  movl $0, %edi
 #  movl data_items(,%edi,4), %eax
 #  movl %eax, %ebx
 
-  movl $1, %edi	# %edi is set to 1 since item indexed with 0 is
-		# already moved to %ebx
+  xorl %edi, %edi # zeoring %edi register
 proc_loop:  # main processing loop
+  cmpl $(data_end - data_items), %edi # check exit condition
+  jge proc_exit
+
   movl data_items(,%edi,4), %eax
-  cmpl $0, %eax	  # check exit condition
+  cmpl $0, %eax
   je proc_exit
 
 #  movl data_items(,%edi,4), %eax
@@ -35,7 +47,8 @@ proc_loop:  # main processing loop
 		# equal %ebx
   movl %eax, %ebx # store current greatest value in %ebx
 
-  incl %edi # increment index; it points to next data_items item
+#  incl %edi # increment index; it points to next data_items item
+  addl $4, %edi
   jmp proc_loop
 
 proc_exit:
