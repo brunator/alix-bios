@@ -7,9 +7,10 @@
 .section .data
 
 data_items:  # table of integers being examined
-  .long 253,67,34,222,45,75,54,34,44,251, 33,22,11,66,95,9,0
+  .long 253,67,34,222,45,75,54,34,44,251,33,22,11,66,95,9,254,0
 data_end:
 
+.globl hex_data
 hex_data:
   .short 0xdeade, 0xbeef, 0xfeda, 0xb1da, 0x9999
 
@@ -32,12 +33,13 @@ _start:
 
   xorl %edi, %edi # zeoring %edi register
 proc_loop:  # main processing loop
-  cmpl $(data_end - data_items), %edi # check exit condition
-  jge proc_exit
+  cmpl $((data_end - data_items) / 4), %edi # check exit condition
+  jge proc_exit	# %edi >= $((data_end - data_items) / 4)
 
   movl data_items(,%edi,4), %eax
-  cmpl $0, %eax
-  je proc_exit
+  incl %edi # increment index; it points to next data_items item
+#  cmpl $0, %eax
+#  je proc_exit
 
 #  movl data_items(,%edi,4), %eax
   cmpl %ebx, %eax # calculate x = %ebx - %eax; if x > 0 then %eax is lesser than
@@ -45,10 +47,9 @@ proc_loop:  # main processing loop
 		  # %eax == %ebx
   jle proc_loop	# jump to the begin of processing loop in case %eax is less or
 		# equal %ebx
+		# %eax <= %ebx
   movl %eax, %ebx # store current greatest value in %ebx
 
-#  incl %edi # increment index; it points to next data_items item
-  addl $4, %edi
   jmp proc_loop
 
 proc_exit:
