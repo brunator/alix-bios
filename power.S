@@ -42,12 +42,12 @@ power_foo:
   movl $1, %eax
 
 calc_loop:
-  cmpl $0, %ebx
-  jg stop
+  cmpl $0, %edx
+  jle stop
 
   imull %ecx, %eax
 
-  decl %ebx
+  decl %edx
   jmp calc_loop
 
 stop:
